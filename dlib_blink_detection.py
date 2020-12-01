@@ -94,7 +94,7 @@ def main(video, predictor, ratio_thresh, frame_thresh):
         # detect all faces in the frame
         rectangles = detector(gray_frame, 0)
 
-        # iterate over al faces
+        # iterate over all faces
         for face in rectangles:
 
             # locate all facial landmarks in the frame
@@ -152,6 +152,84 @@ def main(video, predictor, ratio_thresh, frame_thresh):
     # release endpoint(s) & cleanup
     cv2.destroyAllWindows()
     vs.release()
+
+
+def web_main(vs, predictor, ratio_thresh, frame_thresh):
+
+    # loading the face detector
+    print('[INFO] Loading facial landmark predictor...')
+    detector = dlib.get_frontal_face_detector()
+    # loading the facial landmark predictor
+    predictor = dlib.shape_predictor(predictor)
+
+    # saving the landmark indices for the left & the right eye
+    left_eye_start, left_eye_end = face_utils.FACIAL_LANDMARKS_IDXS['left_eye']
+    right_eye_start, right_eye_end = face_utils.FACIAL_LANDMARKS_IDXS['right_eye']
+
+    counter = 0
+    blinks = 0
+
+    # main loop
+    while True:
+
+        grabbed, frame = vs.read()
+
+        if frame is None:
+            break
+
+        # resize the frame & convert to gray color space
+        frame = imutils.resize(frame, width=450)
+        gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+        # detect all faces in the frame
+        rectangles = detector(gray_frame, 0)
+
+        # iterate over all faces
+        for face in rectangles:
+
+            # locate all facial landmarks in the frame
+            shape = face_utils.shape_to_np(predictor(gray_frame, face))
+
+            # isolate the left & the right eye
+            left_eye = shape[left_eye_start:left_eye_end]
+            right_eye = shape[right_eye_start:right_eye_end]
+
+            # find the aspect ratio for both the eyes
+            left_ratio = eye_aspect_ratio(left_eye)
+            right_ratio = eye_aspect_ratio(right_eye)
+
+            # average out the ratio
+            avg_ratio = (left_ratio + right_ratio) / 2
+
+            # draw contours around the eyes
+            left_eye_curve = cv2.convexHull(left_eye)
+            right_eye_curve = cv2.convexHull(right_eye)
+
+            cv2.drawContours(frame, [left_eye_curve], -1, (0, 255, 0), 1)
+            cv2.drawContours(frame, [right_eye_curve], -1, (0, 255, 0), 1)
+
+            if avg_ratio < ratio_thresh:
+                # increase number of consecutive frames for which the eyes have been closed
+                counter += 1
+
+            else:
+                if counter >= frame_thresh:
+                    # increase number of blinks if the eyes have been closed for more than the threshold number of
+                    # frames
+                    blinks += 1
+
+                counter = 0
+
+            # label the frame
+            cv2.putText(frame, f'Blinks: {blinks}', (10, 30),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+            cv2.putText(frame, f'iRatio: {round(avg_ratio, 2)}', (300, 30),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+
+        ret, jpeg = cv2.imencode('.jpg', frame)
+        frame = jpeg.tobytes()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
 
 if __name__ == '__main__':
