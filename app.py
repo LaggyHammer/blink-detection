@@ -3,7 +3,7 @@ import cv2
 from dlib_blink_detection import web_main
 
 app = Flask(__name__)
-video = cv2.VideoCapture(0)
+video = cv2.VideoCapture(-1)
 
 
 @app.route('/')
