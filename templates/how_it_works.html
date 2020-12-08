@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <title>Dlib-Blink-Detection</title>
+</head>
+
+<body>
+<h3>Blink detection using facial landmark recognition</h3>
+<p>Using dlib's face detector, faces are detected in each frame of a video stream.
+Iterating over each detected face, we predict the facial landmarks using a pre-trained predictor.
+</p>
+<p>The landmarks for each eye are isolated & an average aspect ratio for the eyes is calculated.
+If this ratio falls below a certain customizable threshold for _'n'_ consecutive frames,
+the blink counter is increased.
+</p>
+
+</body>

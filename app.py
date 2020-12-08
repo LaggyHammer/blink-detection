@@ -1,4 +1,4 @@
-from flask import Flask, Response
+from flask import Flask, Response, render_template
 import cv2
 from dlib_blink_detection import web_main
 
@@ -8,16 +8,21 @@ video = cv2.VideoCapture(0)
 
 @app.route('/')
 def index():
-    return "Default Message"
+    return render_template('index.html')
 
 
-def gen(video):
+def gen(feed):
     while True:
-        success, image = video.read()
+        success, image = feed.read()
         ret, jpeg = cv2.imencode('.jpg', image)
         frame = jpeg.tobytes()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+
+
+@app.route("/test_link")
+def test_link():
+    return render_template('how_it_works.html')
 
 
 @app.route('/video_feed')
