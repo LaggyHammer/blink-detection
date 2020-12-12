@@ -16,12 +16,10 @@
 
 <body>
 
-<div class="container">
+{% extends "layout.html" %}
+{% block content %}
 
-        <div class="row">
-            <div class="col-lg-4  offset-lg-2"><h3 class="mt-5"><a href="/">Live Blink Detection</a></h3></div>
-            <div class="col-lg-4  offset-lg-2"><h3 class="mt-5">How This Works</h3></div>
-        </div>
+<div class="container">
 
         <div class="row">
             <div class="col-lg-8  offset-lg-2">
@@ -39,6 +37,8 @@
         </div>
 
     </div>
+
+{% endblock %}
 
 
 

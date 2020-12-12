@@ -1,4 +1,4 @@
-from flask import Flask, Response, render_template
+from flask import Flask, Response, render_template, redirect, url_for
 import cv2
 from dlib_blink_detection import web_main
 
@@ -7,6 +7,11 @@ video = cv2.VideoCapture(0)
 
 
 @app.route('/')
+def default():
+    return redirect(url_for('index'))
+
+
+@app.route('/home/')
 def index():
     return render_template('index.html')
 
@@ -21,7 +26,7 @@ def gen(feed):
 
 
 @app.route("/explain/")
-def test_link():
+def explain():
     return render_template('how_it_works.html')
 
 

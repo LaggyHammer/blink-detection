@@ -11,6 +11,7 @@ the blink counter is increased.
 
 ## Usage
 ```commandline
+python app.py
 python dlib_blink_detection.py --shape_predictor shape_predictor_68_face_landmarks.dat
 python dlib_blink_detection.py --video test.mp4 --shape_predictor shape_predictor_68_face_landmarks.dat
 ```
